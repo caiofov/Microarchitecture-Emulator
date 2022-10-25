@@ -1,2 +1,3 @@
-# Memory-Emulator
-Simple memory emulator developed in python
+# Microarchitecture Emulator
+
+Simple microarchitecture emulator developed in python
