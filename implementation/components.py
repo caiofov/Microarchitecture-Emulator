@@ -34,7 +34,7 @@ class Registers:
             raise ValueError("Invalid register number ", reg_bits)
 
 
-class ULA:
+class ALU:
     def __init__(self) -> None:
         self.N = 0
         self.Z = 1
@@ -76,7 +76,7 @@ class ULA:
         elif control_bits == 0b110010:
             o = -1
         else:
-            ValueError("Invalid ULA input ", control_bits)
+            ValueError("Invalid ALU input ", control_bits)
 
         # update N and Z
         self.N = o

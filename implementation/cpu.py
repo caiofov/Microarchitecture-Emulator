@@ -1,13 +1,13 @@
 from array import array
 
-from components import ULA, Bus, Registers
+from components import ALU, Bus, Registers
 from memory_emulator import MemoryEmulator
 
 
 class CPU:
     def __init__(self) -> None:
         self._regs = Registers()
-        self._ula = ULA()
+        self._alu = ALU()
         self._bus = Bus()
         self._firmware = array("L", [0]) * 512
         self._memory = MemoryEmulator()
@@ -19,8 +19,8 @@ class CPU:
     def write_registers(self, register_bits: int) -> None:
         self._regs.write_reg(register_bits, self._bus.BUS_C)
 
-    def ula_operation(self, control_bits: int) -> None:
-        self._bus.BUS_C = self._ula.operation(
+    def alu_operation(self, control_bits: int) -> None:
+        self._bus.BUS_C = self._alu.operation(
             control_bits, self._bus.BUS_A, self._bus.BUS_B
         )
 
@@ -29,9 +29,9 @@ class CPU:
             self._regs.MPC = next_instruction
             return
         if jam & 0b001:
-            next_instruction |= self._ula.Z << 8
+            next_instruction |= self._alu.Z << 8
         if jam & 0b010:
-            next_instruction |= self._ula.N << 8
+            next_instruction |= self._alu.N << 8
         if jam & 0b100:
             next_instruction |= self._regs.MBR
 
