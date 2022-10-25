@@ -37,10 +37,10 @@ class CPU:
 
         self._regs.MPC = next_instruction
 
-    def memory_io(mem_bits):
+    def memory_io(self, mem_bits: int) -> None:
         if mem_bits & 0b001:
-            self._regs.MBR = self._memory.read_byte(PC)
+            self._regs.MBR = self._memory.read_byte(self._regs.PC)
         if mem_bits & 0b010:
-            self._regs.MDR = self._memory.read_word(MAR)
+            self._regs.MDR = self._memory.read_word(self._regs.MAR)
         if mem_bits & 0b100:
-            self._memory.write_word(MAR, MDR)
+            self._memory.write_word(self._regs.MAR, self._regs.MDR)
