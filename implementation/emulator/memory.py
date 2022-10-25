@@ -2,7 +2,7 @@ from array import array
 
 
 class Memory:
-    """Emulates a memory (1Mb storage and 32 bits each word"""
+    """Emulates a memory (1Mb storage and 32 bits each word)"""
 
     def __init__(self) -> None:
         self._memory = array("L", [0]) * (1024 * 1024 // 4)  # 1Mb | 262.144 words
@@ -19,7 +19,6 @@ class Memory:
         Returns:
             int: word
         """
-        # reads the value storage at 'memory_address'
         pos = self._normalize_pos(memory_address)
         return self._memory[pos]
 
@@ -38,7 +37,6 @@ class Memory:
         pos = self._normalize_pos(byte)
         addr_word = pos >> 2  # divides 'pos' by 4 (32 bits - 4 bytes - word's size)
         word_stored = self._memory[addr_word]
-
         end_byte = (pos & 0b11) << 3  # remainder of the division converted to bytes
 
         return word_stored, end_byte, addr_word
@@ -62,12 +60,11 @@ class Memory:
             value (int): value to write
         """
         value &= 0xFF  # prepares the value
-
         word_stored, end_byte, addr_word = self._get_complete_word_by_byte(byte)
 
+        # mask: turns into 0 all positions to be changed
         mask = ~(0xFF << end_byte)
-        word_stored &= mask
-        value = value << end_byte
-        word_stored |= value
+        word_stored &= mask  # applies the mask
 
-        self._memory[addr_word] = word_stored
+        # produces and stores the new value
+        self._memory[addr_word] = word_stored | (value << end_byte)
