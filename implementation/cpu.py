@@ -54,19 +54,23 @@ class CPU:
         if self._regs.MIR == 0:
             return False
 
-        self._read_registers(self._regs.MIR & 0b00000000000000000000000000000111)
+        r_regs, alu, w_regs, mem, nxt, jam = self._parse_instruction(self._regs.MIR)
 
-        self._alu_operation((self._regs.MIR & 0b00000000000011111111000000000000) >> 12)
-
-        self._write_registers(
-            (self._regs.MIR & 0b00000000000000000000111111000000) >> 6
-        )
-
-        self._memory_io((self._regs.MIR & 0b00000000000000000000000000111000) >> 3)
-
-        self._next_instruction(
-            (self._regs.MIR & 0b11111111100000000000000000000000) >> 23,
-            (self._regs.MIR & 0b00000000011100000000000000000000) >> 20,
-        )
+        self._read_registers(r_regs)
+        self._alu_operation(alu)
+        self._write_registers(w_regs)
+        self._memory_io(mem)
+        self._next_instruction(nxt, jam)
 
         return True
+
+    @staticmethod
+    def _parse_instruction(instruction: int) -> tuple[int, int, int, int, int, int]:
+        return (
+            instruction & 0b00000000000000000000000000000111,
+            (instruction & 0b00000000000011111111000000000000) >> 12,
+            (instruction & 0b00000000000000000000111111000000) >> 6,
+            (instruction & 0b00000000000000000000000000111000) >> 3,
+            (instruction & 0b11111111100000000000000000000000) >> 23,
+            (instruction & 0b00000000011100000000000000000000) >> 20,
+        )
