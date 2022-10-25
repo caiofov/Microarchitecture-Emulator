@@ -41,3 +41,16 @@ class Registers:
             self.Y = value
         elif reg_bits & 0b000001:
             self.H = value
+
+    def __str__(self):
+        return f"""
+MPC = {self.MPC}
+MIR = {self.MIR}
+MAR = {self.MAR}
+MDR = {self.MDR}
+PC = {self.PC}
+MBR = {self.MBR}
+X = {self.X}
+Y = {self.Y}
+H = {self.H}
+"""
