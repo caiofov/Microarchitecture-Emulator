@@ -74,3 +74,15 @@ class CPU:
             (instruction & 0b11111111100000000000000000000000) >> 23,
             (instruction & 0b00000000011100000000000000000000) >> 20,
         )
+
+    def execute(self) -> int:
+        ticks = 0
+        while True:
+            success = True
+            for inst in self._firmware:
+                success &= self.step()  # executa a ação
+            if success:
+                ticks += 1
+            else:
+                break
+        return ticks  # displays number of steps
