@@ -9,7 +9,7 @@ class CPU:
         self._regs = Registers()
         self._alu = ALU()
         self._bus = Bus()
-        self._firmware = array("L", [0]) * 512
+        self.firmware = array("L", [0]) * 512
         self._memory = MemoryEmulator()
 
     def _read_registers(self, register_number: int) -> None:
@@ -20,6 +20,8 @@ class CPU:
         self._regs.write_reg(register_bits, self._bus.BUS_C)
 
     def _alu_operation(self, control_bits: int) -> None:
+        if not control_bits:
+            return
         self._bus.BUS_C = self._alu.operation(
             control_bits, self._bus.BUS_A, self._bus.BUS_B
         )
@@ -45,11 +47,8 @@ class CPU:
         if mem_bits & 0b100:
             self._memory.write_word(self._regs.MAR, self._regs.MDR)
 
-    def add_instruction(self, instruction: int) -> None:
-        self._firmware.append(instruction)
-
     def step(self) -> bool:
-        self._regs.MIR = self._firmware[self._regs.MPC]
+        self._regs.MIR = self.firmware[self._regs.MPC]
 
         if self._regs.MIR == 0:
             return False
@@ -78,10 +77,7 @@ class CPU:
     def execute(self) -> int:
         ticks = 0
         while True:
-            success = True
-            for inst in self._firmware:
-                success &= self.step()  # executa a ação
-            if success:
+            if self.step():
                 ticks += 1
             else:
                 break
