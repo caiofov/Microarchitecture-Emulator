@@ -2,25 +2,23 @@ from array import array
 
 
 class MemoryEmulator:
-    pass
+    def __init__(self) -> None:
+        self._memory = array("L", [0]) * (1024 * 1024 // 4)  # 1Mb | 262.144 words
+        # 1 word = 32 bits (4 bytes)
 
+    def read_word(self, end: int) -> int:
+        # reads 32 bits
+        pos = end & 0b111111111111111111
+        return self._memory[pos]
 
-memory = array("L", [0]) * (1024 * 1024 // 4)  # 1Mb | 262.144 words
-# 1 word = 32 bits (4 bytes)
+    def write_word(self, end: int, val: int) -> None:
+        # writes
+        pos = end & 0b111111111111111111
+        val = val & 0xFFFFFFFF
+        self._memory[pos] = val
 
+    def read_byte(self, end: int) -> int:
+        pass
 
-def read_word(end):
-    # reads 32 bits
-    end = end & 0b111111111111111111
-    return memory[end]
-
-
-def write_word(end, val):
-    # writes
-    end = end & 0b111111111111111111
-    val = val & 0xFFFFFFFF
-    memory[end] = val
-
-
-def read_bytes(end):
-    pass
+    def write_byte(self, end: int, val: int) -> None:
+        pass
