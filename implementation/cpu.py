@@ -9,7 +9,7 @@ class CPU:
         self._regs = Registers()
         self._ula = ULA()
         self._bus = Bus()
-        self._control_store = array("L", [0]) * 512
+        self._firmware = array("L", [0]) * 512
         self._memory = MemoryEmulator()
 
     def read_registers(self, register_number: int) -> None:
