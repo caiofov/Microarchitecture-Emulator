@@ -2,6 +2,8 @@ from array import array
 
 
 class Memory:
+    """Emulates a memory"""
+
     def __init__(self) -> None:
         self._memory = array("L", [0]) * (1024 * 1024 // 4)  # 1Mb | 262.144 words
         # 1 word = 32 bits (4 bytes)
@@ -11,11 +13,22 @@ class Memory:
         return pos & 0b111111111111111111
 
     def read_word(self, memory_address: int) -> int:
+        """Reads the words located at the given memory address
+        Args:
+            memory_address (int): word's address
+        Returns:
+            int: word
+        """
         # reads the value storage at 'memory_address'
         pos = self._get_pos(memory_address)
         return self._memory[pos]
 
     def write_word(self, memory_address: int, value: int) -> None:
+        """Writes the given word to the given memory address
+        Args:
+            memory_address (int): address to which the word will be written
+            value (int): value to write
+        """
         # writes a value (value) at 'memory_address'
         pos = self._get_pos(memory_address)
         value = value & 0xFFFFFFFF

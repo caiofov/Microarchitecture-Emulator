@@ -5,6 +5,8 @@ from .memory import Memory
 
 
 class CPU:
+    """Emulates a CPU"""
+
     def __init__(self) -> None:
         self._regs = Registers()
         self._alu = ALU()
@@ -76,6 +78,12 @@ class CPU:
         )
 
     def execute(self) -> int:
+        """
+        Executes all intructions stored at the firmware
+
+        Returns:
+            int: Number of steps
+        """
         ticks = 0
         while True:
             if self._step():

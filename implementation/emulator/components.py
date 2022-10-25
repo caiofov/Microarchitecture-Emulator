@@ -11,6 +11,12 @@ class Registers:
         self.H = 0
 
     def get_reg(self, reg_num: int) -> int:
+        """returns the value of a register (based on the given number)
+        Args:
+            reg_num (int): register's number
+        Returns:
+            int: register's value
+        """
         return (
             [self.MDR, self.PC, self.MBR, self.X, self.Y][reg_num]
             if reg_num in range(5)
@@ -18,6 +24,11 @@ class Registers:
         )
 
     def write_reg(self, reg_bits: int, value: int) -> None:
+        """Writes the given value to a given register
+        Args:
+            reg_bits (int): Bits for the register (based on the microarchitecture)
+            value (int): value to write
+        """
         if reg_bits & 0b100000:
             self.MAR = value
         elif reg_bits & 0b010000:
