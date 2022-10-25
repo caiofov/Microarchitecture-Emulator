@@ -21,3 +21,16 @@ class CPU:
         self._bus.BUS_C = self._ula.operation(
             control_bits, self._bus.BUS_A, self._bus.BUS_B
         )
+
+    def next_instruction(self, next_instruction: int, jam: int) -> None:
+        if jam == 0b000:
+            self._regs.MPC = next_instruction
+            return
+        if jam & 0b001:
+            next_instruction |= self._ula.Z << 8
+        if jam & 0b010:
+            next_instruction |= self._ula.N << 8
+        if jam & 0b100:
+            next_instruction |= self._regs.MBR
+
+        self._regs.MPC = next_instruction
