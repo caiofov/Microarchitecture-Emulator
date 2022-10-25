@@ -3,42 +3,38 @@ class ALU:
         self.N = 0
         self.Z = 1
 
-    def operation(self, control_bits: int, a: int, b: int) -> int:
-        shift_bits = (control_bits & 0b11000000) >> 6
-        control_bits = control_bits & 0b00111111
+    @staticmethod
+    def _parse_operation(operation: int) -> tuple[int, int, int, int, int, int]:
+        return (
+            (operation & 0b11000000) >> 6,
+            (operation & 0b00110000) >> 4,  # f0,f1
+            (operation & 0b00001000) >> 3,  # enA
+            (operation & 0b00000100) >> 2,  # enB
+            (operation & 0b00000010) >> 1,  # invA
+            operation & 0b00000001,  # inc
+        )
 
-        if control_bits == 0b011000:
-            o = a
-        elif control_bits == 0b010100:
-            o = b
-        elif control_bits == 0b011010:
-            o = ~a
-        elif control_bits == 0b101100:
-            o = ~b
-        elif control_bits == 0b111100:
-            o = a + b
-        elif control_bits == 0b111101:
-            o = a + b + 1
-        elif control_bits == 0b111001:
-            o = a + 1
-        elif control_bits == 0b110101:
-            o = b + 1
-        elif control_bits == 0b111111:
-            o = b - a
-        elif control_bits == 0b110110:
-            o = b - 1
-        elif control_bits == 0b111011:
-            o = -a
-        elif control_bits == 0b001100:
-            o = a & b
-        elif control_bits == 0b011100:
-            o = a | b
-        elif control_bits == 0b010000:
-            o = 0
-        elif control_bits == 0b110001:
-            o = 1
-        elif control_bits == 0b110010:
-            o = -1
+    def operation(self, control_bits: int, a: int, b: int) -> int:
+        """Instruction for ALU operation
+        Args:
+            control_bits (int): according to the microarchiteture (sll8, sra1, f0, f1, enA, enB, invA, inc)
+            a (int): value A
+            b (int): value B
+        Returns:
+            int: operation's result
+        """
+        shift_bits, op, en_a, en_b, inv_a, inc = self._parse_operation(control_bits)
+
+        if op == 0b01:
+            o = ((-a if inv_a else a) if en_a else 0) | (b if en_b else 0)
+        elif op == 0b11:  # sum
+            o = (
+                ((-a if inv_a else a) if en_a else 0)
+                + (b if en_b else 0)
+                + (-inc if inv_a and not en_a else inc)
+            )
+        elif en_a and en_b:
+            o = a & b if op == 0b00 else ~b
         else:
             ValueError("Invalid ALU input ", control_bits)
 
@@ -46,11 +42,9 @@ class ALU:
         self.N = o
         self.Z = int(not o)
 
-        if shift_bits == 0b01:
-            o = o << 1
-        elif shift_bits == 0b10:
-            o = o >> 1
-        elif shift_bits == 0b11:
+        if shift_bits == 0b11:
             o = o << 8
+        elif shift_bits:
+            o = o << 1 if shift_bits == 0b01 else o >> 1
 
         return o

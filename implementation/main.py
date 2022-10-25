@@ -13,3 +13,4 @@ if __name__ == "__main__":
     cpu.firmware[7] = 0b00000100000000000000000000100000  # MEMORY[MAR] = MDR; GOTO 8
 
     print(cpu.execute())
+    print(cpu._regs)
