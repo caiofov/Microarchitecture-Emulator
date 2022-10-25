@@ -1,21 +1,31 @@
 class Registers:
-    MPC = 0
-    MIR = 0
-    MAR = 0
-    MDR = 0
-    PC = 0
-    MBR = 0
-    X = 0
-    Y = 0
-    H = 0
+    def __init__(self) -> None:
+        self.MPC = 0
+        self.MIR = 0
+        self.MAR = 0
+        self.MDR = 0
+        self.PC = 0
+        self.MBR = 0
+        self.X = 0
+        self.Y = 0
+        self.H = 0
+
+    def get_reg(self, reg_num: int) -> int:
+        return (
+            [self.MDR, self.PC, self.MBR, self.X, self.Y][reg_num]
+            if reg_num in range(5)
+            else 0
+        )
 
 
 class ULA:
-    N = 0
-    Z = 1
+    def __init__(self) -> None:
+        self.N = 0
+        self.Z = 1
 
 
 class Bus:
-    BUS_A = 0
-    BUS_B = 0
-    BUS_C = 0
+    def __init__(self) -> None:
+        self.BUS_A = 0
+        self.BUS_B = 0
+        self.BUS_C = 0
