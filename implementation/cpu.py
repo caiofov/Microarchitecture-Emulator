@@ -16,3 +16,8 @@ class CPU:
 
     def write_registers(self, register_bits: int) -> None:
         self._regs.write_reg(register_bits, self._bus.BUS_C)
+
+    def ula_operation(self, control_bits: int) -> None:
+        self._bus.BUS_C = self._ula.operation(
+            control_bits & 0b11000000, self._bus.BUS_A, self._bus.BUS_B
+        )

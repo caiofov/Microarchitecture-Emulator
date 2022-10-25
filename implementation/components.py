@@ -39,6 +39,61 @@ class ULA:
         self.N = 0
         self.Z = 1
 
+    def operation(self, control_bits: int, a: int, b: int) -> int:
+        shift_bits = control_bits & 0b11000000
+        shift_bits = shift_bits >> 6
+
+        if control_bits == 0b011000:
+            o = a
+        elif control_bits == 0b010100:
+            o = b
+        elif control_bits == 0b011010:
+            o = ~a
+        elif control_bits == 0b101100:
+            o = ~b
+        elif control_bits == 0b111100:
+            o = a + b
+        elif control_bits == 0b111101:
+            o = a + b + 1
+        elif control_bits == 0b111001:
+            o = a + 1
+        elif control_bits == 0b110101:
+            o = b + 1
+        elif control_bits == 0b111111:
+            o = b - a
+        elif control_bits == 0b110110:
+            o = b - 1
+        elif control_bits == 0b111011:
+            o = -a
+        elif control_bits == 0b001100:
+            o = a & b
+        elif control_bits == 0b011100:
+            o = a | b
+        elif control_bits == 0b010000:
+            o = 0
+        elif control_bits == 0b110001:
+            o = 1
+        elif control_bits == 0b110010:
+            o = -1
+        else:
+            ValueError("Invalid ULA input ", control_bits)
+
+        if o == 0:
+            self.N = 0
+            self.Z = 1
+        else:
+            self.N = 1
+            self.Z = 0
+
+        if shift_bits == 0b01:
+            o = o << 1
+        elif shift_bits == 0b10:
+            o = o >> 1
+        elif shift_bits == 0b11:
+            o = o << 8
+
+        return o
+
 
 class Bus:
     def __init__(self) -> None:
