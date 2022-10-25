@@ -30,11 +30,12 @@ class CPU:
         if jam == 0b000:
             self._regs.MPC = next_instruction
             return
+
         if jam & 0b001:
             next_instruction |= self._alu.Z << 8
-        if jam & 0b010:
+        elif jam & 0b010:
             next_instruction |= self._alu.N << 8
-        if jam & 0b100:
+        elif jam & 0b100:
             next_instruction |= self._regs.MBR
 
         self._regs.MPC = next_instruction
@@ -42,12 +43,12 @@ class CPU:
     def _memory_io(self, mem_bits: int) -> None:
         if mem_bits & 0b001:
             self._regs.MBR = self._memory.read_byte(self._regs.PC)
-        if mem_bits & 0b010:
+        elif mem_bits & 0b010:
             self._regs.MDR = self._memory.read_word(self._regs.MAR)
-        if mem_bits & 0b100:
+        elif mem_bits & 0b100:
             self._memory.write_word(self._regs.MAR, self._regs.MDR)
 
-    def step(self) -> bool:
+    def _step(self) -> bool:
         self._regs.MIR = self.firmware[self._regs.MPC]
 
         if self._regs.MIR == 0:
@@ -77,7 +78,7 @@ class CPU:
     def execute(self) -> int:
         ticks = 0
         while True:
-            if self.step():
+            if self._step():
                 ticks += 1
             else:
                 break

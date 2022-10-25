@@ -18,8 +18,6 @@ class Registers:
         )
 
     def write_reg(self, reg_bits: int, value: int) -> None:
-        if not reg_bits:
-            return
         if reg_bits & 0b100000:
             self.MAR = value
         elif reg_bits & 0b010000:
