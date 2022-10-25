@@ -40,8 +40,8 @@ class ULA:
         self.Z = 1
 
     def operation(self, control_bits: int, a: int, b: int) -> int:
-        shift_bits = control_bits & 0b11000000
-        shift_bits = shift_bits >> 6
+        shift_bits = (control_bits & 0b11000000) >> 6
+        control_bits = control_bits & 0b00111111
 
         if control_bits == 0b011000:
             o = a
@@ -78,12 +78,9 @@ class ULA:
         else:
             ValueError("Invalid ULA input ", control_bits)
 
-        if o == 0:
-            self.N = 0
-            self.Z = 1
-        else:
-            self.N = 1
-            self.Z = 0
+        # update N and Z
+        self.N = o
+        self.Z = int(not o)
 
         if shift_bits == 0b01:
             o = o << 1
