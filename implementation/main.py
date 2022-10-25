@@ -1,4 +1,4 @@
-from emulator import MemoryEmulator
+from memory_emulator import MemoryEmulator
 
 mem = MemoryEmulator()
 mem.write_word(3, 5)
