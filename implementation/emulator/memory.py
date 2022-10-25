@@ -34,6 +34,15 @@ class Memory:
         value = value & 0xFFFFFFFF
         self._memory[pos] = value
 
+    def _get_complete_word_by_byte(self, byte: int) -> tuple[int, int, int]:
+        pos = self._normalize_pos(byte)
+        addr_word = pos >> 2  # divides 'pos' by 4 (32 bits - 4 bytes - word's size)
+        word_stored = self._memory[addr_word]
+
+        end_byte = (pos & 0b11) << 3  # remainder of the division converted to bytes
+
+        return word_stored, end_byte, addr_word
+
     def read_byte(self, byte: int) -> int:
         """Reads a byte from the memory
         Args:
@@ -41,14 +50,10 @@ class Memory:
         Returns:
             int: value stored in that byte
         """
-        pos = self._normalize_pos(byte)
-        addr_word = pos >> 2  # divides 'pos' by 4 (32 bits - 4 bytes - word's size)
-        word_stored = self._memory[addr_word]
+        word_stored, end_byte, _ = self._get_complete_word_by_byte(byte)
+        val_byte = word_stored >> end_byte  # removes all bits before the expected byte
 
-        end_byte = (pos & 0b11) << 3  # remainder of the division converted to bytes
-        val_byte = word_stored >> end_byte
-
-        return val_byte & 0xFF
+        return val_byte & 0xFF  # turns all unexpected bits into 0
 
     def write_byte(self, byte: int, value: int) -> None:
         """Writes a value into a byte from the memory
@@ -56,16 +61,13 @@ class Memory:
             byte (int): byte to which the value will be written
             value (int): value to write
         """
-        value &= 0xFF
+        value &= 0xFF  # prepares the value
 
-        pos = self._normalize_pos(byte)
-        addr_word = pos >> 2
-        word_stored = self._memory[addr_word]
+        word_stored, end_byte, addr_word = self._get_complete_word_by_byte(byte)
 
-        end_byte = pos & 0b11
-        mask = ~(0xFF << (end_byte << 3))
+        mask = ~(0xFF << end_byte)
         word_stored &= mask
-        value = value << (end_byte << 3)
+        value = value << end_byte
         word_stored |= value
 
         self._memory[addr_word] = word_stored
