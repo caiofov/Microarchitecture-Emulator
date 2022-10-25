@@ -1,7 +1,7 @@
 from array import array
 
-from components import ALU, Bus, Registers
-from memory_emulator import MemoryEmulator
+from .components import ALU, Bus, Registers
+from .memory import Memory
 
 
 class CPU:
@@ -10,7 +10,7 @@ class CPU:
         self._alu = ALU()
         self._bus = Bus()
         self.firmware = array("L", [0]) * 512
-        self._memory = MemoryEmulator()
+        self._memory = Memory()
 
     def _read_registers(self, register_number: int) -> None:
         self._bus.BUS_A = self._regs.H

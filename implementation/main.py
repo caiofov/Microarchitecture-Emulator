@@ -1,4 +1,4 @@
-from cpu import CPU
+from emulator import CPU
 
 if __name__ == "__main__":
     cpu = CPU()

@@ -1,7 +1,7 @@
 from array import array
 
 
-class MemoryEmulator:
+class Memory:
     def __init__(self) -> None:
         self._memory = array("L", [0]) * (1024 * 1024 // 4)  # 1Mb | 262.144 words
         # 1 word = 32 bits (4 bytes)
