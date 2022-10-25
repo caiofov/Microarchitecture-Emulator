@@ -11,34 +11,40 @@ class MemoryEmulator:
         return pos & 0b111111111111111111
 
     def read_word(self, memory_address: int) -> int:
-        # reads 32 bits
+        # reads the value storage at 'memory_address'
         pos = self._get_pos(memory_address)
         return self._memory[pos]
 
     def write_word(self, memory_address: int, value: int) -> None:
-        # writes 32 bits
+        # writes a value (value) at 'memory_address'
         pos = self._get_pos(memory_address)
         value = value & 0xFFFFFFFF
         self._memory[pos] = value
 
     def read_byte(self, memory_address: int) -> int:
+        # reads
         pos = self._get_pos(memory_address)
-        end_word = pos >> 2
-        val_word = self._memory[end_word]
+        addr_word = pos >> 2
+        word_stored = self._memory[addr_word]
 
         end_byte = pos & 0b11
-        val_byte = val_word >> (end_byte << 3)
+        val_byte = word_stored >> (end_byte << 3)
         val_byte = val_byte & 0xFF
+
         return val_byte
 
     def write_byte(self, memory_address: int, value: int) -> None:
+        # writes
+        value &= 0xFF
+
         pos = self._get_pos(memory_address)
-        value = value & 0xFF
-        end_word = pos >> 2
-        val_word = self._memory[end_word]
+        addr_word = pos >> 2
+        word_stored = self._memory[addr_word]
+
         end_byte = pos & 0b11
         mask = ~(0xFF << (end_byte << 3))
-        val_word = val_word & mask
+        word_stored &= mask
         value = value << (end_byte << 3)
-        val_word = val_word | value
-        self._memory[end_word] = val_word
+        word_stored |= value
+
+        self._memory[addr_word] = word_stored
