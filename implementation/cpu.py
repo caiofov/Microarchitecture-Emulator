@@ -13,3 +13,6 @@ class CPU:
     def read_registers(self, register_number: int) -> None:
         self._bus.BUS_A = self._regs.H
         self._bus.BUS_B = self._regs.get_reg(register_number)
+
+    def write_registers(self, register_bits: int) -> None:
+        self._regs.write_reg(register_bits, self._bus.BUS_C)
