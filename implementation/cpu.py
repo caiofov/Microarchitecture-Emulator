@@ -1,6 +1,7 @@
 from array import array
 
 from components import ULA, Bus, Registers
+from memory_emulator import MemoryEmulator
 
 
 class CPU:
@@ -9,6 +10,7 @@ class CPU:
         self._ula = ULA()
         self._bus = Bus()
         self._control_store = array("L", [0]) * 512
+        self._memory = MemoryEmulator()
 
     def read_registers(self, register_number: int) -> None:
         self._bus.BUS_A = self._regs.H
@@ -34,3 +36,11 @@ class CPU:
             next_instruction |= self._regs.MBR
 
         self._regs.MPC = next_instruction
+
+    def memory_io(mem_bits):
+        if mem_bits & 0b001:
+            self._regs.MBR = self._memory.read_byte(PC)
+        if mem_bits & 0b010:
+            self._regs.MDR = self._memory.read_word(MAR)
+        if mem_bits & 0b100:
+            self._memory.write_word(MAR, MDR)
