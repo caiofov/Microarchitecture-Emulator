@@ -1,6 +1,7 @@
-from emulator import CPU
+from emulator import CPU, memory
 
-if __name__ == "__main__":
+
+def main() -> None:
     cpu = CPU()
 
     cpu.firmware[0] = 0b00000000100000000000000000010000  # MDR = MEMORY[0]; GOTO 1
@@ -14,3 +15,7 @@ if __name__ == "__main__":
 
     print(cpu.execute())
     print(cpu._regs)
+
+
+if __name__ == "__main__":
+    main()
