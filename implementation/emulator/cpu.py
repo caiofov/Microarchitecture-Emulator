@@ -91,7 +91,6 @@ class CPU:
     def execute(self) -> int:
         """
         Executes all intructions stored at the firmware
-
         Returns:
             int: Number of steps
         """
