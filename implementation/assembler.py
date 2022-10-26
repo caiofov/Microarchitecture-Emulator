@@ -10,7 +10,6 @@ class Assembler:
         self.lines_bin = []
         self.names = []
 
-        self.instructions = ["add", "sub", "goto", "mov", "jz", "halt", "wb", "ww"]
         self.instruction_set = {
             "add": 0x02,
             "sub": 0x06,
@@ -19,36 +18,35 @@ class Assembler:
             "jz": 0x0F,
             "halt": 0xFF,
         }
+        self.instructions = list(self.instruction_set.keys()) + ["wb", "ww"]
 
-    def _is_instruction(self, str) -> bool:
+    def _is_instruction(self, token: str) -> bool:
         inst = False
         for i in self.instructions:
-            if inst := (i == str):
+            if inst := (i == token):
                 break
         return inst
 
-    def _is_name(self, str):
+    def _is_name(self, token: str):
         name = False
         for n in self.names:
-            if name := (n[0] == str):
+            if name := (n[0] == token):
                 break
         return name
 
     def _encode_2ops(self, inst: str, ops: list[Any]) -> Any:
         line_bin = []
-        if len(ops) > 1:
-            if ops[0] == "x":
-                if self._is_name(ops[1]):
-                    line_bin.append(self.instruction_set[inst])
-                    line_bin.append(ops[1])
+        if len(ops) > 1 and ops[0] == "x":
+            if self._is_name(ops[1]):
+                line_bin.append(self.instruction_set[inst])
+                line_bin.append(ops[1])
         return line_bin
 
     def _encode_goto(self, ops: list[Any]) -> Any:
         line_bin = []
-        if len(ops) > 0:
-            if self._is_name(ops[0]):
-                line_bin.append(self.instruction_set["goto"])
-                line_bin.append(ops[0])
+        if len(ops) > 0 and self._is_name(ops[0]):
+            line_bin.append(self.instruction_set["goto"])
+            line_bin.append(ops[0])
         return line_bin
 
     def _encode_halt(self) -> Any:
@@ -64,23 +62,17 @@ class Assembler:
 
     def _encode_ww(self, ops: list[Any]) -> Any:
         line_bin = []
-        if len(ops) > 0:
-            if ops[0].isnumeric():
-                val = int(ops[0])
-                if val < pow(2, 32):
-                    line_bin.append(val & 0xFF)
-                    line_bin.append((val & 0xFF00) >> 8)
-                    line_bin.append((val & 0xFF0000) >> 16)
-                    line_bin.append((val & 0xFF000000) >> 24)
+        if len(ops) > 0 and ops[0].isnumeric():
+            val = int(ops[0])
+            if val < pow(2, 32):
+                line_bin.append(val & 0xFF)
+                line_bin.append((val & 0xFF00) >> 8)
+                line_bin.append((val & 0xFF0000) >> 16)
+                line_bin.append((val & 0xFF000000) >> 24)
         return line_bin
 
     def _encode_instruction(self, instruction: str, ops: list[Any]) -> Any:
-        if (
-            instruction == "add"
-            or instruction == "sub"
-            or instruction == "mov"
-            or instruction == "jz"
-        ):
+        if instruction in ("add", "sub", "mov", "jz"):
             return self._encode_2ops(instruction, ops)
         elif instruction == "goto":
             return self._encode_goto(ops)
@@ -102,8 +94,7 @@ class Assembler:
 
     def _lines_to_bin_step1(self) -> bool:
         for line in self.lines:
-            line_bin = self._line_to_bin_step1(line)
-            if line_bin == []:
+            if not (line_bin := self._line_to_bin_step1(line)):
                 # raise SyntaxError("Line ", self.lines.index(line))
                 print("Erro de sintaxe na linha ", self.lines.index(line))
                 return False
@@ -140,14 +131,18 @@ class Assembler:
         for line in self.lines_bin:
             for i in range(len(line)):
                 if self._is_name(line[i]):
-                    if line[i - 1] in (
-                        self.instruction_set[op] for op in ["add", "sub", "mov"]
-                    ):
-                        line[i] = self._get_name_byte(line[i]) // 4
-                    else:
-                        line[i] = self._get_name_byte(line[i])
+                    line[i] = self._get_name_byte(line[i]) // (
+                        4
+                        if line[i - 1]
+                        in (self.instruction_set[op] for op in ["add", "sub", "mov"])
+                        else 1
+                    )
 
     def _load_tokens(self, file: IOBase) -> None:
+        """Normalizes all tokens and deletes empty strings
+        Args:
+            file (IOBase): opened source file
+        """
         for l in file:
             tokens = [
                 t for t in l.replace("\n", "").replace(",", "").lower().split(" ") if t
