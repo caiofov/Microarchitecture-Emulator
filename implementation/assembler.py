@@ -1,6 +1,4 @@
-import sys
-
-fsrc = open(str(sys.argv[1]), "r")
+from typing import Any
 
 
 class Assembler:
@@ -37,31 +35,29 @@ class Assembler:
                 break
         return name
 
-    def encode_2ops(self, inst, ops):
+    def encode_2ops(self, inst: str, ops: list[Any]) -> Any:
         line_bin = []
         if len(ops) > 1:
             if ops[0] == "x":
-                if is_name(ops[1]):
-                    line_bin.append(instruction_set[inst])
+                if self.is_name(ops[1]):
+                    line_bin.append(self.instruction_set[inst])
                     line_bin.append(ops[1])
         return line_bin
 
-    def encode_goto(self, ops):
+    def encode_goto(self, ops: list[Any]) -> Any:
         line_bin = []
         if len(ops) > 0:
-            if is_name(ops[0]):
-                line_bin.append(instruction_set["goto"])
+            if self.is_name(ops[0]):
+                line_bin.append(self.instruction_set["goto"])
                 line_bin.append(ops[0])
         return line_bin
 
-    def encode_halt(
-        self,
-    ):
+    def encode_halt(self) -> Any:
         line_bin = []
-        line_bin.append(instruction_set["halt"])
+        line_bin.append(self.instruction_set["halt"])
         return line_bin
 
-    def encode_wb(self, ops):
+    def encode_wb(self, ops: list[Any]) -> Any:
         line_bin = []
         if len(ops) > 0:
             if ops[0].isnumeric():
@@ -69,7 +65,7 @@ class Assembler:
                     line_bin.append(int(ops[0]))
         return line_bin
 
-    def encode_ww(self, ops):
+    def encode_ww(self, ops: list[Any]) -> Any:
         line_bin = []
         if len(ops) > 0:
             if ops[0].isnumeric():
@@ -81,38 +77,43 @@ class Assembler:
                     line_bin.append((val & 0xFF000000) >> 24)
         return line_bin
 
-    def encode_instruction(self, inst, ops):
-        if inst == "add" or inst == "sub" or inst == "mov" or inst == "jz":
-            return encode_2ops(inst, ops)
-        elif inst == "goto":
-            return encode_goto(ops)
-        elif inst == "halt":
-            return encode_halt()
-        elif inst == "wb":
-            return encode_wb(ops)
-        elif inst == "ww":
-            return encode_ww(ops)
+    def encode_instruction(self, instruction: str, ops: list[Any]) -> Any:
+        if (
+            instruction == "add"
+            or instruction == "sub"
+            or instruction == "mov"
+            or instruction == "jz"
+        ):
+            return self.encode_2ops(instruction, ops)
+        elif instruction == "goto":
+            return self.encode_goto(ops)
+        elif instruction == "halt":
+            return self.encode_halt()
+        elif instruction == "wb":
+            return self.encode_wb(ops)
+        elif instruction == "ww":
+            return self.encode_ww(ops)
         else:
             return []
 
-    def line_to_bin_step1(self, line):
+    def line_to_bin_step1(self, line) -> Any:
         line_bin = []
-        if is_instruction(line[0]):
-            line_bin = encode_instruction(line[0], line[1:])
+        if self.is_instruction(line[0]):
+            line_bin = self.encode_instruction(line[0], line[1:])
         else:
-            line_bin = encode_instruction(line[1], line[2:])
+            line_bin = self.encode_instruction(line[1], line[2:])
         return line_bin
 
-    def lines_to_bin_step1(self):
+    def lines_to_bin_step1(self) -> bool:
         for line in self.lines:
-            line_bin = line_to_bin_step1(line)
+            line_bin = self.line_to_bin_step1(line)
             if line_bin == []:
                 print("Erro de sintaxe na linha ", self.lines.index(line))
                 return False
             self.lines_bin.append(line_bin)
         return True
 
-    def find_names(self):
+    def find_names(self) -> None:
         for k in range(0, len(self.lines)):
             is_label = True
             for i in self.instructions:
@@ -120,7 +121,7 @@ class Assembler:
                     is_label = False
                     break
             if is_label:
-                names.append((self.lines[k][0], k))
+                self.names.append((self.lines[k][0], k))
 
     def count_bytes(self, line_number: int) -> int:
         line = 0
@@ -130,25 +131,26 @@ class Assembler:
             line += 1
         return byte
 
-    def get_name_byte(self, str):
+    def get_name_byte(self, str) -> Any:
         for name in self.names:
             if name[0] == str:
                 return name[1]
 
     def resolve_names(self) -> None:
-        for i in range(0, len(names)):
-            names[i] = (names[i][0], count_bytes(names[i][1]))
+        for i in range(0, len(self.names)):
+            self.names[i] = (self.names[i][0], self.count_bytes(self.names[i][1]))
+
         for line in self.lines_bin:
             for i in range(0, len(line)):
-                if is_name(line[i]):
+                if self.is_name(line[i]):
                     if (
-                        line[i - 1] == instruction_set["add"]
-                        or line[i - 1] == instruction_set["sub"]
-                        or line[i - 1] == instruction_set["mov"]
+                        line[i - 1] == self.instruction_set["add"]
+                        or line[i - 1] == self.instruction_set["sub"]
+                        or line[i - 1] == self.instruction_set["mov"]
                     ):
-                        line[i] = get_name_byte(line[i]) // 4
+                        line[i] = self.get_name_byte(line[i]) // 4
                     else:
-                        line[i] = get_name_byte(line[i])
+                        line[i] = self.get_name_byte(line[i])
 
     def execute(self) -> None:
         with open(self.source_file, "r") as fsrc:
