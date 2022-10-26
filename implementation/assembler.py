@@ -1,3 +1,4 @@
+from io import IOBase
 from typing import Any
 
 
@@ -22,16 +23,14 @@ class Assembler:
     def is_instruction(self, str) -> bool:
         inst = False
         for i in self.instructions:
-            if i == str:
-                inst = True
+            if inst := (i == str):
                 break
         return inst
 
     def is_name(self, str):
         name = False
         for n in self.names:
-            if n[0] == str:
-                name = True
+            if name := (n[0] == str):
                 break
         return name
 
@@ -97,24 +96,24 @@ class Assembler:
             return []
 
     def line_to_bin_step1(self, line) -> Any:
-        line_bin = []
-        if self.is_instruction(line[0]):
-            line_bin = self.encode_instruction(line[0], line[1:])
-        else:
-            line_bin = self.encode_instruction(line[1], line[2:])
-        return line_bin
+        return (
+            self.encode_instruction(line[0], line[1:])
+            if self.is_instruction(line[0])
+            else self.encode_instruction(line[1], line[2:])
+        )
 
     def lines_to_bin_step1(self) -> bool:
         for line in self.lines:
             line_bin = self.line_to_bin_step1(line)
             if line_bin == []:
+                # raise SyntaxError("Line ", self.lines.index(line))
                 print("Erro de sintaxe na linha ", self.lines.index(line))
                 return False
             self.lines_bin.append(line_bin)
         return True
 
     def find_names(self) -> None:
-        for k in range(0, len(self.lines)):
+        for k in range(len(self.lines)):
             is_label = True
             for i in self.instructions:
                 if self.lines[k][0] == i:
@@ -137,40 +136,39 @@ class Assembler:
                 return name[1]
 
     def resolve_names(self) -> None:
-        for i in range(0, len(self.names)):
+        for i in range(len(self.names)):
             self.names[i] = (self.names[i][0], self.count_bytes(self.names[i][1]))
 
         for line in self.lines_bin:
-            for i in range(0, len(line)):
+            for i in range(len(line)):
                 if self.is_name(line[i]):
-                    if (
-                        line[i - 1] == self.instruction_set["add"]
-                        or line[i - 1] == self.instruction_set["sub"]
-                        or line[i - 1] == self.instruction_set["mov"]
+                    if line[i - 1] in (
+                        self.instruction_set[op] for op in ["add", "sub", "mov"]
                     ):
                         line[i] = self.get_name_byte(line[i]) // 4
                     else:
                         line[i] = self.get_name_byte(line[i])
 
+    def _load_tokens(self, file: IOBase) -> None:
+        for l in file:
+            tokens = [
+                t for t in l.replace("\n", "").replace(",", "").lower().split(" ") if t
+            ]
+            if len(tokens) > 0:
+                self.lines.append(tokens)
+
     def execute(self) -> None:
         with open(self.source_file, "r") as fsrc:
-            for line in fsrc:
-                tokens = line.replace("\n", "").replace(",", "").lower().split(" ")
-                i = 0
-                while i < len(tokens):
-                    if tokens[i] == "":
-                        tokens.pop(i)
-                        i -= 1
-                    i += 1
-                if len(tokens) > 0:
-                    self.lines.append(tokens)
-
+            self._load_tokens(fsrc)
             self.find_names()
+
             if self.lines_to_bin_step1():
                 self.resolve_names()
                 byte_arr = [0]
+
                 for line in self.lines_bin:
                     for byte in line:
                         byte_arr.append(byte)
+
                 with open(self.output_file, "wb") as fdst:
                     fdst.write(bytearray(byte_arr))

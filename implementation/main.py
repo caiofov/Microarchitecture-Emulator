@@ -1,4 +1,5 @@
-from emulator import CPU, memory
+from assembler import Assembler
+from emulator import CPU
 
 
 def main() -> None:
@@ -18,4 +19,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    assembler = Assembler("implementation\program.asm")
+    assembler.execute()
