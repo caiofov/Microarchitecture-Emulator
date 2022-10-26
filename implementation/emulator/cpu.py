@@ -14,6 +14,17 @@ class CPU:
         self.firmware = array("L", [0]) * 512
         self._memory = Memory()
 
+    def read_image(self, img: str) -> None:
+        """Reads a .bin file
+        Args:
+            img (str): path to the file
+        """
+        byte_address = 0
+        with open(img, "rb") as disk:
+            while byte := disk.read(1):
+                self._memory.write_byte(byte_address, int.from_bytes(byte, "little"))
+                byte_address += 1
+
     def _read_registers(self, register_number: int) -> None:
         self._bus.BUS_A = self._regs.H
         self._bus.BUS_B = self._regs.get_reg(register_number)
