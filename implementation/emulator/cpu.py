@@ -1,4 +1,5 @@
 from array import array
+from typing import Optional
 
 from .components import ALU, Bus, Registers
 from .memory import Memory
@@ -13,17 +14,31 @@ class CPU:
         self._bus = Bus()
         self.firmware = array("L", [0]) * 512
         self._memory = Memory()
+        self._last_inst_idx = 0
 
     def read_image(self, img: str) -> None:
         """Reads a .bin file
         Args:
             img (str): path to the file
         """
-        byte_address = 0
         with open(img, "rb") as disk:
-            while byte := disk.read(1):
-                self._memory.write_byte(byte_address, int.from_bytes(byte, "little"))
-                byte_address += 1
+            while byte := disk.read(4):
+                self.add_instruction(int.from_bytes(byte, "little"))
+
+    def add_instruction(self, instruction: int, index: Optional[int] = None) -> None:
+        """Adds a new instruction to the firmware
+        Args:
+            instruction (int): Instruction to be added
+            index (Optional[int], optional): New struction's index(None to append). Defaults to None.
+        """
+        if not (idx := index):
+            self._last_inst_idx += 1
+            idx = self._last_inst_idx
+        self.firmware[idx] = instruction
+
+    def halt(self) -> None:
+        """Halt instruction"""
+        self.add_instruction(0b00000000000000000000000000000000, 255)
 
     def _read_registers(self, register_number: int) -> None:
         self._bus.BUS_A = self._regs.H
