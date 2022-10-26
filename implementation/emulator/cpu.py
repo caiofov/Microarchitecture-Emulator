@@ -32,8 +32,8 @@ class CPU:
             index (Optional[int], optional): New struction's index(None to append). Defaults to None.
         """
         if not (idx := index):
-            self._last_inst_idx += 1
             idx = self._last_inst_idx
+            self._last_inst_idx += 1
         self.firmware[idx] = instruction
 
     def halt(self) -> None:
