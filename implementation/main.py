@@ -1,6 +1,5 @@
 from assembler import Assembler
 from emulator import CPU
-from instructions import instructions
 
 if __name__ == "__main__":
     assembler = Assembler("implementation\program.asm")
@@ -8,6 +7,6 @@ if __name__ == "__main__":
 
     cpu = CPU()
     cpu.read_image("program.bin")
-    instructions(cpu)
 
     print(cpu.execute())
+    print(cpu._memory)

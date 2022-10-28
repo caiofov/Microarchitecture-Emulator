@@ -15,6 +15,7 @@ class CPU:
         self.firmware = array("L", [0]) * 512
         self._memory = Memory()
         self._last_inst_idx = 0
+        self._control()
 
     def read_image(self, img: str) -> None:
         """Reads a .bin file
@@ -125,3 +126,55 @@ class CPU:
             idx += 1
 
         return str(output)
+
+    def _control(self) -> None:
+        # C => MAR, MDR, PC, X, Y, H
+        # B => 000 = MDR, 001 = PC, 010 = MBR, 011 = x, 100 = Y
+        # main: PC <- PC + 1; MBR <- read_byte(PC); GOTO MBR
+        self.add_instruction(0b000000000_100_00_110101_001000_001_001)
+
+        self._last_inst_idx = 2
+        # X = X + mem[address]
+        ##2: PC <- PC + 1; MBR <- read_byte(PC); GOTO 3
+        self.add_instruction(0b000000011_000_00_110101_001000_001_001)
+        ##3: MAR <- MBR; read_word; GOTO 4
+        self.add_instruction(0b000000100_000_00_010100_100000_010_010)
+        ##4: H <- MDR; GOTO 5
+        self.add_instruction(0b000000101_000_00_010100_000001_000_000)
+        ##5: X <- H + X; GOTO 0
+        self.add_instruction(0b000000000_000_00_111100_000100_000_011)
+
+        # X = X - mem[address]
+        ##6: PC <- PC + 1; fetch; goto 7
+        self.add_instruction(0b000000111_000_00_110101_001000_001_001)
+        ##7: MAR <- MBR; read; goto 8
+        self.add_instruction(0b000001000_000_00_010100_100000_010_010)
+        ##8: H <- MDR; goto 9
+        self.add_instruction(0b000001001_000_00_010100_000001_000_000)
+        ##9: X <- X - H; goto 0
+        self.add_instruction(0b000000000_000_00_111111_000100_000_011)
+
+        # mem[address] = X
+        ##10: PC <- PC + 1; fetch; GOTO 11
+        self.add_instruction(0b000001011_000_00_110101_001000_001_001)
+        ##11: MAR <- MBR; GOTO 12
+        self.add_instruction(0b000001100_000_00_010100_100000_000_010)
+        ##12: MDR <- X; write; GOTO 0
+        self.add_instruction(0b000000000_000_00_010100_010000_100_011)
+
+        # goto address
+        ##13: PC <- PC + 1; fetch; GOTO 14
+        self.add_instruction(0b000001110_000_00_110101_001000_001_001)
+        ##14: PC <- MBR; fetch; GOTO MBR
+        self.add_instruction(0b000000000_100_00_010100_001000_001_010)
+
+        # if X = 0 then goto address
+        ## 15: X <- X; IF ALU = 0 GOTO 272(100010000) ELSE GOTO 16(000010000)
+        self.add_instruction(0b000010000_001_00_010100_000100_000_011)
+        ## 16: PC <- PC + 1; GOTO 0
+        self.add_instruction(0b000000000_000_00_110101_001000_000_001)
+        ## 272: GOTO 13
+        self.add_instruction(0b000001101_000_00_000000_000000_000_000, 272)
+
+        # halt:
+        self.halt()
