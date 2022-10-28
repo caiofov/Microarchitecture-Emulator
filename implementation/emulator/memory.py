@@ -68,3 +68,13 @@ class Memory:
 
         # produces and stores the new value
         self._memory[addr_word] = word_stored | (value << end_byte)
+
+    def __str__(self) -> str:
+        output = {}
+        idx = 0
+        for data in self._memory:
+            if data:
+                output[str(idx)] = data
+            idx += 1
+
+        return str(output)
