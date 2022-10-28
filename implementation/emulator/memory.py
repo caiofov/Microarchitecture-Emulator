@@ -9,8 +9,8 @@ class Memory:
         # 1 word = 32 bits (4 bytes)
 
     @staticmethod
-    def _normalize_pos(pos: int) -> int:
-        return pos & 0b1111111111111111111
+    def _normalize_pos(pos: int, add_num: int = 0, add_bits: int = 0) -> int:
+        return pos & ((0b1111111111111111111 << add_num) | add_bits)
 
     def read_word(self, memory_address: int) -> int:
         """Reads the words located at the given memory address
@@ -34,7 +34,7 @@ class Memory:
         self._memory[pos] = value
 
     def _get_complete_word_by_byte(self, byte: int) -> tuple[int, int, int]:
-        pos = self._normalize_pos(byte)
+        pos = self._normalize_pos(byte, 2, 3)
         addr_word = pos >> 2  # divides 'pos' by 4 (32 bits - 4 bytes - word's size)
         word_stored = self._memory[addr_word]
         end_byte = (pos & 0b11) << 3  # remainder of the division converted to bytes
