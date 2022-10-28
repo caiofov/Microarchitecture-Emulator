@@ -28,7 +28,6 @@ class Memory:
             memory_address (int): address to which the word will be written
             value (int): value to write
         """
-        # writes a value (value) at 'memory_address'
         pos = self._normalize_pos(memory_address)
         value = value & 0xFFFFFFFF
         self._memory[pos] = value

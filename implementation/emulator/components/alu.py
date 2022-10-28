@@ -26,25 +26,25 @@ class ALU:
         shift_bits, op, en_a, en_b, inv_a, inc = self._parse_operation(control_bits)
 
         if op == 0b01:
-            o = ((-a if inv_a else a) if en_a else 0) | (b if en_b else 0)
+            res = ((-a if inv_a else a) if en_a else 0) | (b if en_b else 0)
         elif op == 0b11:  # sum
-            o = (
+            res = (
                 ((-a if inv_a else a) if en_a else 0)
                 + (b if en_b else 0)
-                + (-inc if inv_a and not en_a else inc)
+                + (-inc if inv_a and not en_a else (0 if inv_a and en_a else inc))
             )
         elif en_a and en_b:
-            o = a & b if op == 0b00 else ~b
+            res = a & b if op == 0b00 else ~b
         else:
             ValueError("Invalid ALU input ", control_bits)
 
         # update N and Z
-        self.N = int(bool(o))
-        self.Z = int(not o)
+        self.N = int(bool(res))
+        self.Z = int(not res)
 
         if shift_bits == 0b11:
-            o = o << 8
+            res = res << 8
         elif shift_bits:
-            o = o << 1 if shift_bits == 0b01 else o >> 1
+            res = res << 1 if shift_bits == 0b01 else res >> 1
 
-        return o
+        return res
