@@ -39,7 +39,7 @@ class ALU:
             ValueError("Invalid ALU input ", control_bits)
 
         # update N and Z
-        self.N = o
+        self.N = int(bool(o))
         self.Z = int(not o)
 
         if shift_bits == 0b11:
