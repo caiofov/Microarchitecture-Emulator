@@ -21,9 +21,11 @@ class CPU:
         Args:
             img (str): path to the file
         """
+        byte_address = 0
         with open(img, "rb") as disk:
-            while byte := disk.read(4):
-                self.add_instruction(int.from_bytes(byte, "little"))
+            while byte := disk.read(1):
+                self._memory.write_byte(byte_address, int.from_bytes(byte, "little"))
+                byte_address += 1
 
     def add_instruction(self, instruction: int, index: Optional[int] = None) -> None:
         """Adds a new instruction to the firmware
