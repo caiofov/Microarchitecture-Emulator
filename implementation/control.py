@@ -1,7 +1,7 @@
 from emulator import CPU
 
 
-def instructions(cpu: CPU) -> None:
+def control(cpu: CPU) -> None:
     # C => MAR, MDR, PC, X, Y, H
     # B => 000 = MDR, 001 = PC, 010 = MBR, 011 = x, 100 = Y
     # main: PC <- PC + 1; MBR <- read_byte(PC); GOTO MBR
