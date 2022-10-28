@@ -1,5 +1,4 @@
 from io import IOBase
-from typing import Any
 
 
 class Assembler:
@@ -34,44 +33,45 @@ class Assembler:
                 break
         return name
 
-    def _encode_2ops(self, inst: str, ops: list[Any]) -> list[int]:
-        line_bin = []
+    def _encode_2ops(self, inst: str, ops: list[str]) -> list[int]:
         if len(ops) > 1 and ops[0] == "x":
             if self._is_name(ops[1]):
-                line_bin.append(self.instruction_set[inst])
-                line_bin.append(ops[1])
-        return line_bin
+                return [self.instruction_set[inst], ops[1]]
+        raise ValueError("Invalid input ", ops)
 
-    def _encode_goto(self, ops: list[Any]) -> list[int]:
-        line_bin = []
+    def _encode_goto(self, ops: list[str]) -> list[int]:
         if len(ops) > 0 and self._is_name(ops[0]):
-            line_bin.append(self.instruction_set["goto"])
-            line_bin.append(ops[0])
-        return line_bin
+            return [self.instruction_set["goto"], ops[0]]
+        else:
+            raise ValueError("Invalid input ", ops)
 
     def _encode_halt(self) -> list[int]:
-        line_bin = []
-        line_bin.append(self.instruction_set["halt"])
-        return line_bin
+        return [self.instruction_set["halt"]]
 
-    def _encode_wb(self, ops: list[Any]) -> list[int]:
-        line_bin = []
+    def _encode_wb(self, ops: list[str]) -> list[int]:
         if len(ops) > 0 and ops[0].isnumeric() and int(ops[0]) < 256:
-            line_bin.append(int(ops[0]))
-        return line_bin
+            return [int(ops[0])]
+        else:
+            raise ValueError("Invalid input ", ops)
 
-    def _encode_ww(self, ops: list[Any]) -> list[int]:
-        line_bin = []
+    def _encode_ww(self, ops: list[str]) -> list[int]:
         if len(ops) > 0 and ops[0].isnumeric():
+            line_bin = []
             val = int(ops[0])
+
             if val < pow(2, 32):
                 line_bin.append(val & 0xFF)
                 line_bin.append((val & 0xFF00) >> 8)
                 line_bin.append((val & 0xFF0000) >> 16)
                 line_bin.append((val & 0xFF000000) >> 24)
-        return line_bin
+                return line_bin
+            else:
+                raise ValueError("Number exceeded max value of 2^32")
 
-    def _encode_instruction(self, instruction: str, ops: list[Any]) -> list[int]:
+        else:
+            raise ValueError("Invalid input ", ops)
+
+    def _encode_instruction(self, instruction: str, ops: list[str]) -> list[int]:
         if instruction in ("add", "sub", "mov", "jz"):
             return self._encode_2ops(instruction, ops)
         elif instruction == "goto":
