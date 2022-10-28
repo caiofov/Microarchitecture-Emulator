@@ -7,6 +7,7 @@ def instructions(cpu: CPU) -> None:
     # main: PC <- PC + 1; MBR <- read_byte(PC); GOTO MBR
     cpu.add_instruction(0b000000000_100_00_110101_001000_001_001)
 
+    cpu._last_inst_idx = 2
     # X = X + mem[address]
     ##2: PC <- PC + 1; MBR <- read_byte(PC); GOTO 3
     cpu.add_instruction(0b000000011_000_00_110101_001000_001_001)
@@ -47,7 +48,7 @@ def instructions(cpu: CPU) -> None:
     ## 16: PC <- PC + 1; GOTO 0
     cpu.add_instruction(0b000000000_000_00_110101_001000_000_001)
     ## 272: GOTO 13
-    cpu.add_instruction(0b000001101_000_00_000000_000000_000_000)
+    cpu.add_instruction(0b000001101_000_00_000000_000000_000_000, 272)
 
     # halt:
     cpu.halt()
