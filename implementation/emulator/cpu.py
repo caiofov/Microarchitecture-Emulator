@@ -112,9 +112,6 @@ class CPU:
             int: Number of steps
         """
         ticks = 0
-        while True:
-            if self._step():
-                ticks += 1
-            else:
-                break
+        while self._step():
+            ticks += 1
         return ticks  # displays number of steps
