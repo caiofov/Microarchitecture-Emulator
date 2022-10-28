@@ -20,11 +20,7 @@ class Assembler:
         self.instructions = list(self.instruction_set.keys()) + ["wb", "ww"]
 
     def _is_instruction(self, token: str) -> bool:
-        inst = False
-        for i in self.instructions:
-            if inst := (i == token):
-                break
-        return inst
+        return token in self.instructions
 
     def _is_name(self, token: str) -> bool:
         name = False
