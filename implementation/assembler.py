@@ -27,14 +27,14 @@ class Assembler:
                 break
         return inst
 
-    def _is_name(self, token: str):
+    def _is_name(self, token: str) -> bool:
         name = False
         for n in self.names:
             if name := (n[0] == token):
                 break
         return name
 
-    def _encode_2ops(self, inst: str, ops: list[Any]) -> Any:
+    def _encode_2ops(self, inst: str, ops: list[Any]) -> list[int]:
         line_bin = []
         if len(ops) > 1 and ops[0] == "x":
             if self._is_name(ops[1]):
@@ -42,25 +42,25 @@ class Assembler:
                 line_bin.append(ops[1])
         return line_bin
 
-    def _encode_goto(self, ops: list[Any]) -> Any:
+    def _encode_goto(self, ops: list[Any]) -> list[int]:
         line_bin = []
         if len(ops) > 0 and self._is_name(ops[0]):
             line_bin.append(self.instruction_set["goto"])
             line_bin.append(ops[0])
         return line_bin
 
-    def _encode_halt(self) -> Any:
+    def _encode_halt(self) -> list[int]:
         line_bin = []
         line_bin.append(self.instruction_set["halt"])
         return line_bin
 
-    def _encode_wb(self, ops: list[Any]) -> Any:
+    def _encode_wb(self, ops: list[Any]) -> list[int]:
         line_bin = []
         if len(ops) > 0 and ops[0].isnumeric() and int(ops[0]) < 256:
             line_bin.append(int(ops[0]))
         return line_bin
 
-    def _encode_ww(self, ops: list[Any]) -> Any:
+    def _encode_ww(self, ops: list[Any]) -> list[int]:
         line_bin = []
         if len(ops) > 0 and ops[0].isnumeric():
             val = int(ops[0])
@@ -71,7 +71,7 @@ class Assembler:
                 line_bin.append((val & 0xFF000000) >> 24)
         return line_bin
 
-    def _encode_instruction(self, instruction: str, ops: list[Any]) -> Any:
+    def _encode_instruction(self, instruction: str, ops: list[Any]) -> list[int]:
         if instruction in ("add", "sub", "mov", "jz"):
             return self._encode_2ops(instruction, ops)
         elif instruction == "goto":
@@ -85,7 +85,7 @@ class Assembler:
         else:
             return []
 
-    def _line_to_bin_step1(self, line) -> Any:
+    def _line_to_bin_step1(self, line) -> list[int]:
         return (
             self._encode_instruction(line[0], line[1:])
             if self._is_instruction(line[0])
@@ -95,9 +95,7 @@ class Assembler:
     def _lines_to_bin_step1(self) -> bool:
         for line in self.lines:
             if not (line_bin := self._line_to_bin_step1(line)):
-                # raise SyntaxError("Line ", self.lines.index(line))
-                print("Erro de sintaxe na linha ", self.lines.index(line))
-                return False
+                raise SyntaxError("Line ", self.lines.index(line))
             self.lines_bin.append(line_bin)
         return True
 
@@ -119,7 +117,7 @@ class Assembler:
             line += 1
         return byte
 
-    def _get_name_byte(self, str) -> Any:
+    def _get_name_byte(self, str) -> int:
         for name in self.names:
             if name[0] == str:
                 return name[1]
