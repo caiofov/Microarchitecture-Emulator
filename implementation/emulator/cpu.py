@@ -115,3 +115,13 @@ class CPU:
         while self._step():
             ticks += 1
         return ticks  # displays number of steps
+
+    def __str__(self) -> str:
+        output = {}
+        idx = 0
+        for data in self.firmware:
+            if data:
+                output[str(idx)] = data
+            idx += 1
+
+        return str(output)
