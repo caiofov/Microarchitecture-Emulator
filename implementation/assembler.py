@@ -139,9 +139,11 @@ class Assembler:
         """
         for l in file:
             tokens = [
-                t for t in l.replace("\n", "").replace(",", "").lower().split(" ") if t
+                t
+                for t in l.replace("\n", "").replace(",", "").lower().split(" ")
+                if t and t[0] != "#"
             ]
-            if len(tokens) > 0:
+            if tokens:
                 self.lines.append(tokens)
 
     def execute(self) -> None:
