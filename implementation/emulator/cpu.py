@@ -182,8 +182,16 @@ class CPU:
         self.firmware[21] = 0b000000000_000_00_010000_000100_000_011
 
     def _set_1_op(self) -> None:  # TODO: Not working
-        ##21: X <- -1; goto 0
+        ##22: X <- -1; goto 0
         self.firmware[22] = 0b000000000_000_00_110010_000100_000_011
+
+    def _div_op(self) -> None:  # TODO: some problems
+        ##23: X <- X/2; goto 0
+        self.firmware[23] = 0b000000000_000_10_011000_000100_000_011
+
+    def _mul_op(self) -> None:
+        ##24: X <- X*2; goto 0
+        self.firmware[24] = 0b000000000_000_01_011000_000100_000_011
 
     def _halt(self) -> None:
         """Halt instruction"""
@@ -203,6 +211,8 @@ class CPU:
         self._set1_op()
         self._set0_op()
         self._set_1_op()
+        self._div_op()
+        self._mul_op()
         self._jz_op()  # if X = 0 then goto address
 
         self._halt()
