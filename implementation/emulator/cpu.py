@@ -28,10 +28,6 @@ class CPU:
                 self._memory.write_byte(byte_address, int.from_bytes(byte, "little"))
                 byte_address += 1
 
-    def halt(self) -> None:
-        """Halt instruction"""
-        self.firmware[255] = 0b00000000000000000000000000000000
-
     def _read_registers(self, register_number: int) -> None:
         self._bus.BUS_A = self._regs.H
         self._bus.BUS_B = self._regs.get_reg(register_number)
@@ -165,7 +161,11 @@ class CPU:
         ## 16: PC <- PC + 1; GOTO 0
         self.firmware[16] = 0b000000000_000_00_110101_001000_000_001
         ## 272: GOTO 13
-        self.firmware[17] = 0b000001101_000_00_000000_000000_000_000
+        self.firmware[272] = 0b000001101_000_00_000000_000000_000_000
+
+    def _halt(self) -> None:
+        """Halt instruction"""
+        self.firmware[255] = 0b00000000000000000000000000000000
 
     def _control(self) -> None:
         # C => MAR, MDR, PC, X, Y, H
@@ -178,4 +178,4 @@ class CPU:
         self._goto_op()  # goto address
         self._jz_op()  # if X = 0 then goto address
 
-        self.halt()
+        self._halt()
