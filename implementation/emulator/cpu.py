@@ -163,6 +163,10 @@ class CPU:
         ## 272: GOTO 13
         self.firmware[272] = 0b000001101_000_00_000000_000000_000_000
 
+    def _add1_op(self) -> None:
+        ##17: X <- 1 + X; GOTO 0
+        self.firmware[17] = 0b000000000_000_00_111001_000100_000_011
+
     def _halt(self) -> None:
         """Halt instruction"""
         self.firmware[255] = 0b00000000000000000000000000000000
@@ -176,6 +180,7 @@ class CPU:
         self._sub_op()  # X = X - mem[address]
         self._mov_op()  # mem[address] = X
         self._goto_op()  # goto address
+        self._add1_op()
         self._jz_op()  # if X = 0 then goto address
 
         self._halt()
