@@ -17,6 +17,9 @@ class Assembler:
             "jz": 0x0F,
             "add1": 0x11,
             "sub1": 0x12,
+            "set1": 20,
+            "set0": 21,
+            "set-1": 22,
             "halt": 0xFF,
         }
         self.instructions = list(self.instruction_set.keys()) + ["wb", "ww"]
@@ -71,7 +74,7 @@ class Assembler:
             return self._encode_2ops(instruction, ops)
         elif instruction == "goto":
             return self._encode_goto(ops)
-        elif instruction in ("halt", "add1", "sub1"):
+        elif instruction in ("halt", "add1", "sub1", "set1", "set0", "set-1"):
             return [self.instruction_set[instruction]]
         elif instruction == "wb":
             return self._encode_wb(ops)

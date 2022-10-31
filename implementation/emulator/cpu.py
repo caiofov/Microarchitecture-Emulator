@@ -173,6 +173,18 @@ class CPU:
         ##19: X <- X - H; goto 0
         self.firmware[19] = 0b000000000_000_00_111111_000100_000_011
 
+    def _set1_op(self) -> None:
+        ##20: X <- 1; goto 0
+        self.firmware[20] = 0b000000000_000_00_110001_000100_000_011
+
+    def _set0_op(self) -> None:
+        ##21: X <- 0; goto 0
+        self.firmware[21] = 0b000000000_000_00_010000_000100_000_011
+
+    def _set_1_op(self) -> None:  # TODO: Not working
+        ##21: X <- -1; goto 0
+        self.firmware[22] = 0b000000000_000_00_110010_000100_000_011
+
     def _halt(self) -> None:
         """Halt instruction"""
         self.firmware[255] = 0b00000000000000000000000000000000
@@ -188,6 +200,9 @@ class CPU:
         self._goto_op()  # goto address
         self._add1_op()
         self._sub1_op()
+        self._set1_op()
+        self._set0_op()
+        self._set_1_op()
         self._jz_op()  # if X = 0 then goto address
 
         self._halt()
