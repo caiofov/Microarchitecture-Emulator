@@ -38,6 +38,9 @@ class ALU:
         else:
             ValueError("Invalid ALU input ", control_bits)
 
+        if control_bits == 0b110010:
+            res = -1
+
         # update N and Z
         self.N = int(bool(res))
         self.Z = int(not res)
