@@ -15,6 +15,7 @@ class Assembler:
             "goto": 0x0D,
             "mov": 0x0A,
             "jz": 0x0F,
+            "add1": 0x11,
             "halt": 0xFF,
         }
         self.instructions = list(self.instruction_set.keys()) + ["wb", "ww"]
@@ -41,9 +42,6 @@ class Assembler:
         else:
             raise ValueError("Invalid input ", ops)
 
-    def _encode_halt(self) -> list[int]:
-        return [self.instruction_set["halt"]]
-
     def _encode_wb(self, ops: list[str]) -> list[int]:
         if len(ops) > 0 and ops[0].isnumeric() and int(ops[0]) < 256:
             return [int(ops[0])]
@@ -68,12 +66,12 @@ class Assembler:
             raise ValueError("Invalid input ", ops)
 
     def _encode_instruction(self, instruction: str, ops: list[str]) -> list[int]:
-        if instruction in ("add", "sub", "mov", "jz"):
+        if instruction in ("add", "sub", "mov", "jz", "ms"):
             return self._encode_2ops(instruction, ops)
         elif instruction == "goto":
             return self._encode_goto(ops)
-        elif instruction == "halt":
-            return self._encode_halt()
+        elif instruction in ("halt", "add1"):
+            return [self.instruction_set[instruction]]
         elif instruction == "wb":
             return self._encode_wb(ops)
         elif instruction == "ww":
