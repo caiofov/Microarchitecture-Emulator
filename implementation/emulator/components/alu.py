@@ -36,7 +36,7 @@ class ALU:
         elif en_a and en_b:
             res = a & b if op == 0b00 else ~b
         else:
-            ValueError("Invalid ALU input ", control_bits)
+            raise ValueError("Invalid ALU input ", control_bits)
 
         if control_bits == 0b110010:
             res = -1
